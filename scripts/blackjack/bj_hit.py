@@ -14,26 +14,26 @@ def main():
         send_message(f"@{username}, сейчас нет активной игры.")
         return
 
-    # Находим текущего игрока
+    # Find the current player
     current_player_index = game_state['current_player_index']
     if current_player_index >= len(game_state['players']):
-        # Все игроки закончили, переходим к дилеру
+        # All players have finished; we’ll now move on to the dealer
         send_message("Все игроки закончили. Ожидайте ход дилера.")
         return
 
     current_player = game_state['players'][current_player_index]
 
-    # Проверяем, что команду вызвал текущий игрок
+    # We check that the command was issued by the current player
     if current_player['name'].lower() != username.lower():
         send_message(f"@{username}, сейчас не ваш ход. Ожидайте.")
         return
 
-    # Проверяем, не закончил ли игрок (не перебор или не stand)
+    # We check whether the player has finished
     if current_player['is_finished']:
         send_message(f"@{username}, вы уже закончили свой ход.")
         return
 
-    # Игрок берет карту
+    # The player takes a card
     new_card = game_state['deck'].pop()
     current_player['hand'].append(new_card)
     current_player['value'] = calculate_hand_value(current_player['hand'])
@@ -41,29 +41,27 @@ def main():
     hand_str = hand_to_string(current_player['hand'])
     message = f"@{username}, вы берете карту: {card_to_string(new_card)}. Ваша рука: {hand_str} (Сумма: {current_player['value']})."
 
-    # Проверяем на перебор
+    # Checking for busted players
     if current_player['value'] > 21:
         current_player['is_finished'] = True
         message += " Перебор! Вы проиграли."
-        # Переходим к следующему игроку
+        # Let’s move on to the next player
         game_state['current_player_index'] += 1
-        # Проверяем, есть ли следующий игрок
+        # Checking if there is a next player
         if game_state['current_player_index'] < len(game_state['players']):
             next_player = game_state['players'][game_state['current_player_index']]
             message += f" Ход игрока: @{next_player['name']}."
         else:
-            # Все игроки закончили, нужно играть дилеру
-            # Вызываем функцию для игры дилера
-            # (Мы реализуем это в отдельной команде '!bj dealer' или автоматически)
+            # All players have finished; it’s the dealer’s turn to play
+            # Call the function to play the dealer’s hand
+            # (We’ll implement this as a separate command, ‘!bj dealer’, or automatically)
             message += " Все игроки закончили. Ход дилера."
-            # Здесь мы можем вызвать логику дилера, но для простоты
-            # мы предложим игрокам написать '!bj dealer'
             game_state['status'] = 'waiting_for_dealer'  # Новый статус
 
     elif current_player['value'] == 21:
         current_player['is_finished'] = True
         message += " У вас 21! Отлично."
-        # Переходим к следующему игроку
+        # Let’s move on to the next player
         game_state['current_player_index'] += 1
         if game_state['current_player_index'] < len(game_state['players']):
             next_player = game_state['players'][game_state['current_player_index']]

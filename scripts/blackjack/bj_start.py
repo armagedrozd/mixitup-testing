@@ -68,7 +68,7 @@ def main():
         if blackjack_players:
             message += f"\n\nБлэкджек у игроков: {', '.join(blackjack_players)}!"
             for p in blackjack_players:
-            	add_WINNERS_to_file(p['name'])
+                add_WINNERS_to_file(p['name'])
             # Здесь нужно обработать выплаты, но для простоты просто объявим победителей
             # и завершим игру.
             # TODO: Добавить логику выплат и завершения.

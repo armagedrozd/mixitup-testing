@@ -29,12 +29,12 @@ def main():
         send_message(f"@{username}, вы уже закончили свой ход.")
         return
 
-    # Игрок останавливается
+    # The player stands
     current_player['is_finished'] = True
     hand_str = hand_to_string(current_player['hand'])
     message = f"@{username}, вы останавливаетесь. Ваша рука: {hand_str} (Сумма: {current_player['value']})."
 
-    # Переходим к следующему игроку
+    # Let’s move on to the next player
     game_state['current_player_index'] += 1
 
     if game_state['current_player_index'] < len(game_state['players']):

@@ -14,15 +14,15 @@ def main():
         send_message("Нет активной игры.")
         return
 
-    # Проверяем, что игра в состоянии ожидания дилера
+    # We check that the game is in the ‘waiting for the dealer’ state
     if game_state['status'] != 'waiting_for_dealer':
         return
 
-    # Играем за дилера
+    # Let’s play as the dealer
     dealer_hand = game_state['dealer_hand']
     dealer_value = calculate_hand_value(dealer_hand)
 
-    # Дилер берет карты, пока его сумма < 17
+    # The dealer draws cards until their total is less than 17
     while dealer_value < 17:
         new_card = game_state['deck'].pop()
         dealer_hand.append(new_card)
@@ -33,7 +33,7 @@ def main():
 
     message = f"Дилер открывает карты: {dealer_hand_str} (Сумма: {dealer_value}).\n"
 
-    # Определяем победителей
+    # Announcing the winners
     results = []
     for player in game_state['players']:
         player_value = player['value']
@@ -55,12 +55,12 @@ def main():
     message += "\n".join(results)
     message += "\n\nИгра окончена. Спасибо за игру!"
 
-    # Завершаем игру и очищаем файл
+    # We’ll finish the game and clear the file
     game_state['status'] = 'finished'
     save_game(game_state)
     send_message(message)
 
-    # Очищаем файл, чтобы можно было начать новую игру
+    # We’re clearing the file so we can start a new game
     clear_game()
 
 if __name__ == "__main__":

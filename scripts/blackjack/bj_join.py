@@ -18,13 +18,13 @@ def main():
         send_message(f"@{username}, игра уже началась. Присоединиться нельзя.")
         return
 
-    # Проверяем, не присоединился ли уже этот игрок
+    # We check whether this player has already joined
     for player in game_state['players']:
         if player['name'].lower() == username.lower():
             send_message(f"@{username}, вы уже в игре!")
             return
 
-    # Добавляем игрока
+    # Add a player
     game_state['players'].append({
         'name': username,
         'hand': [],

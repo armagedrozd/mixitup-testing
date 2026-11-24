@@ -4,17 +4,17 @@ import os
 import random
 import sys
 
-# Определяем путь к файлу состояния игры
-# Предполагаем, что скрипты находятся в одной папке
+# Set the path to the game state file
+# We assume that the scripts are all in the same folder
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 GAME_FILE = os.path.join(SCRIPT_DIR, 'bj_game.json')
-WINNERS = r"file path"
-LOSERS = r"file path"
+WINNERS = os.path.join(SCRIPT_DIR, 'winners.txt')
+LOSERS  = os.path.join(SCRIPT_DIR, 'losers.txt')
 
-# --- Работа с картами ---
+# --- Working with cards ---
 
 def create_deck():
-    """Создает и перемешивает стандартную колоду из 52 карт."""
+    """It shuffles a standard 52-card deck."""
     suits = ['♠️', '♥️', '♦️', '♣️']
     ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
     deck = [{'rank': rank, 'suit': suit} for suit in suits for rank in ranks]
@@ -22,16 +22,16 @@ def create_deck():
     return deck
 
 def card_value(card):
-    """Возвращает стоимость карты для подсчета очков."""
+    """Returns the value of the card used to calculate points."""
     if card['rank'] in ['J', 'Q', 'K']:
         return 10
     elif card['rank'] == 'A':
-        return 11  # Возвращаем 11, но будем обрабатывать особый случай для туза
+        return 11  # We return 11, but we’ll handle a special case for the ace
     else:
         return int(card['rank'])
 
 def calculate_hand_value(hand):
-    """Подсчитывает стоимость руки, учитывая, что туз может быть 1 или 11."""
+    """Calculates the value of a hand, taking into account that an ace can be either 1 or 11."""
     value = 0
     aces = 0
     for card in hand:
@@ -40,55 +40,55 @@ def calculate_hand_value(hand):
             aces += 1
         value += val
 
-    # Если у нас есть тузы и значение больше 21, превращаем тузы из 11 в 1
+    # If we have aces and our total is more than 21, we change the aces from 11 to 1
     while value > 21 and aces > 0:
         value -= 10
         aces -= 1
     return value
 
 def card_to_string(card):
-    """Преобразует карту в строку для вывода в чат."""
+    """Converts a card into a string for display in the chat."""
     return f"{card['rank']}{card['suit']}"
 
 def hand_to_string(hand):
-    """Преобразует руку в строку для вывода."""
+    """Converts the hand into a string for output."""
     return ', '.join([card_to_string(card) for card in hand])
 
-# --- Работа с файлом состояния ---
+# --- Working with the state file ---
 
 def load_game():
-    """Загружает состояние игры из файла. Если файла нет, возвращает None."""
+    """Loads the game state from a file. If the file does not exist, it returns None."""
     if os.path.exists(GAME_FILE):
         with open(GAME_FILE, 'r', encoding='utf-8') as f:
             return json.load(f)
     return None
 
 def save_game(game_state):
-    """Сохраняет состояние игры в файл."""
+    """Saves the game state to a file."""
     with open(GAME_FILE, 'w', encoding='utf-8') as f:
         json.dump(game_state, f, ensure_ascii=False, indent=4)
 
 def clear_game():
-    """Удаляет файл состояния игры."""
+    """Deletes the game state file."""
     if os.path.exists(GAME_FILE):
         os.remove(GAME_FILE)
 
-# --- Функции для вывода сообщений ---
+# --- Functions for displaying messages ---
 
 def send_message(message):
-    """Выводит сообщение в чат. Mix It Up захватывает stdout."""
+    """Displays a message in the chat. Mix It Up captures scriptresult."""
     print(message)
 
 def send_error(message):
-    """Выводит сообщение об ошибке."""
+    """Displays an error message."""
     print(f"[Ошибка] {message}")
 
 def get_username():
-    """Получает имя пользователя из аргумента или из $username."""
-    # В Mix It Up мы передаем имя пользователя как аргумент
-    # Это делается для того, чтобы скрипт был универсальным.
-    # Если аргумент не передан, пытаемся использовать $targetusername
-    # Но лучше всегда передавать $username первым аргументом.
+    """Retrieves the username from an argument or from $username."""
+    # In Mix It Up, we pass the username as an argument
+    # This is done to ensure the script is versatile.
+    # If no argument is passed, we attempt to use $targetusername
+    # However, it is always best to pass $username as the first argument.
     if len(sys.argv) > 1:
         return sys.argv[1]
     else:
@@ -96,10 +96,10 @@ def get_username():
     
 def add_WINNERS_to_file(user_id: str) -> bool:
     """
-    Добавляет ID в файл. Возвращает True, если добавлен, False если уже был.
+    Adds an ID to the file. Returns True if it has been added, False if it already exists.
     """
     user_id = str(user_id).strip()  
-    # Проверяем, есть ли уже
+    # Let’s check if it’s already there
     if os.path.exists(WINNERS):
         with open(WINNERS, "r", encoding="utf-8") as f:
             existing = {line.strip() for line in f}
@@ -107,18 +107,18 @@ def add_WINNERS_to_file(user_id: str) -> bool:
             print(f"SKIP: {user_id} already exists")
             return False
     
-    # Добавляем
+    # Add
     with open(WINNERS, "a", encoding="utf-8") as f:
         f.write(user_id + "\n")
     return True
 
 def add_LOSERS_to_file(user_id: str) -> bool:
     """
-    Добавляет ID в файл. Возвращает True, если добавлен, False если уже был.
+    Adds an ID to the file. Returns True if it has been added, False if it already exists.
     """
     user_id = str(user_id).strip()
         
-    # Проверяем, есть ли уже
+    # Let’s check if it’s already there
     if os.path.exists(LOSERS):
         with open(LOSERS, "r", encoding="utf-8") as f:
             existing = {line.strip() for line in f}
@@ -126,7 +126,7 @@ def add_LOSERS_to_file(user_id: str) -> bool:
             print(f"SKIP: {user_id} already exists")
             return False
     
-    # Добавляем
+    # Add
     with open(LOSERS, "a", encoding="utf-8") as f:
         f.write(user_id + "\n")
     return True
